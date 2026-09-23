@@ -97,19 +97,6 @@ async function seedDatabase() {
       console.log('🌱 Seeded default UPI Accounts into local MongoDB.');
     }
 
-    // 4. Seed Team Members
-    const teamCount = await TeamMember.countDocuments();
-    if (teamCount === 0) {
-      await TeamMember.create([
-        { referrerId: '1000656', phone: '897****1210', usersCount: 0, recharge: 36162.88, comm: 211.51 },
-        { referrerId: '1000656', phone: '709****4921', usersCount: 0, recharge: 0, comm: 0 },
-        { referrerId: '1000656', phone: '702****9820', usersCount: 0, recharge: 0, comm: 0 }
-      ]);
-      console.log('🌱 Seeded default Team Members into local MongoDB.');
-    } else {
-      // Ensure existing members have referrerId
-      await TeamMember.updateMany({ referrerId: { $exists: false } }, { $set: { referrerId: '1000656' } });
-    }
 
     // 5. Seed Transactions for Authority Panel
     const txCount = await Transaction.countDocuments();

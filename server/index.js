@@ -603,35 +603,30 @@ app.get('/api/team', async (req, res) => {
     const targetId = req.query.userId || '1000656';
     let user = await User.findOne({ userId: targetId });
     if (!user) {
-      user = await User.create({ userId: targetId });
+      return res.status(404).json({ error: 'User not found' });
     }
 
+    // Only real members who registered using this user's referral code
     const members = await TeamMember.find({ referrerId: targetId }).sort({ createdAt: -1 });
 
-    const initialSeedRecharge = 36162.88;
-    const initialSeedComm = 211.51;
-
-    const currentMemberRecharge = members.reduce((sum, m) => sum + (Number(m.recharge) || 0), 0);
-    const currentMemberComm = members.reduce((sum, m) => sum + (Number(m.comm) || 0), 0);
-
-    const extraRecharge = Math.max(0, currentMemberRecharge - initialSeedRecharge);
-    const extraComm = Math.max(0, currentMemberComm - initialSeedComm);
-
-    const displayRecharge = Number((58459.88 + extraRecharge).toFixed(2));
-    const displayComm = Number(((user.teamCommission || 211.51) + extraComm).toFixed(2));
+    const totalRecharge = members.reduce((sum, m) => sum + (Number(m.recharge) || 0), 0);
+    const totalComm = Number(user.teamCommission || 0);
 
     res.json({
       success: true,
       referralCode: user.referralCode || user.userId,
-      commission: displayComm,
-      teamRecharge: displayRecharge,
-      teamCount: members.length > 0 ? members.length : 3,
+      commission: Math.round(totalComm * 100) / 100,
+      teamRecharge: Math.round(totalRecharge * 100) / 100,
+      teamCount: members.length,
       referralRate: '0.8%',
-      members: members.length > 0 ? members : [
-        { phone: '897****1210', usersCount: 0, recharge: 36162.88, comm: 211.51 },
-        { phone: '709****4921', usersCount: 0, recharge: 0, comm: 0 },
-        { phone: '702****9820', usersCount: 0, recharge: 0, comm: 0 }
-      ]
+      members: members.map(m => ({
+        id: m._id,
+        phone: m.phone || '987****0000',
+        usersCount: m.usersCount || 0,
+        recharge: m.recharge || 0,
+        comm: m.comm || 0,
+        createdAt: m.createdAt
+      }))
     });
   } catch (err) {
     res.status(500).json({ error: err.message });

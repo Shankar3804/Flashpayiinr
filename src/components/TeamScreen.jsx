@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { User, Users, Copy, Check, Share2 } from 'lucide-react';
+import { User, Users, Copy, Check, Share2, Link2 } from 'lucide-react';
 import { API_BASE } from '../config';
 
 export default function TeamScreen({ showToast, currentUser, stats }) {
-  const [copied, setCopied] = useState(false);
+  const [copiedCode, setCopiedCode] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
 
   const userId = currentUser?.userId || stats?.userId || '1000656';
   const referralCode = currentUser?.referralCode || userId;
+
+  const inviteUrl = typeof window !== 'undefined' && window.location.origin
+    ? `${window.location.origin}/?ref=${referralCode}`
+    : `https://flashpayiinr.vercel.app/?ref=${referralCode}`;
 
   const [teamData, setTeamData] = useState({
     commission: Number(currentUser?.teamCommission || stats?.teamCommission || 0),
@@ -52,9 +57,40 @@ export default function TeamScreen({ showToast, currentUser, stats }) {
       document.body.removeChild(textArea);
     }
 
-    setCopied(true);
-    if (showToast) showToast('Invite code copied to clipboard!');
-    setTimeout(() => setCopied(false), 2000);
+    setCopiedCode(true);
+    if (showToast) showToast('Invite code copied!');
+    setTimeout(() => setCopiedCode(false), 2000);
+  };
+
+  const copyInviteLink = () => {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(inviteUrl);
+    } else {
+      const textArea = document.createElement('textarea');
+      textArea.value = inviteUrl;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+    }
+
+    setCopiedLink(true);
+    if (showToast) showToast('Invite link copied!');
+    setTimeout(() => setCopiedLink(false), 2000);
+  };
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Join FlashPay',
+          text: `Join FlashPay using my invite code ${referralCode} and get 8% return on every deposit!`,
+          url: inviteUrl
+        });
+      } catch (err) {}
+    } else {
+      copyInviteLink();
+    }
   };
 
   return (
@@ -83,63 +119,158 @@ export default function TeamScreen({ showToast, currentUser, stats }) {
         </div>
       </div>
 
-      {/* Invite Code Section (Simple Referral Code only, no URL link) */}
-      <div style={{ marginBottom: '24px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-          <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#000', margin: 0 }}>
-            Invite Code
-          </h3>
+      {/* Invite Link & Code Card */}
+      <div style={{
+        background: '#ffffff',
+        borderRadius: '16px',
+        padding: '18px 16px',
+        marginBottom: '24px',
+        border: '1px solid #e2e8f0',
+        boxShadow: '0 2px 10px rgba(0,0,0,0.03)'
+      }}>
+        {/* Header with 0.8% badge */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <div>
+            <h3 style={{ fontSize: '16px', fontWeight: '800', color: '#0f172a', margin: '0 0 2px 0' }}>
+              Invite Friends & Earn
+            </h3>
+            <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>
+              Get 0.8% instant commission on every team recharge
+            </p>
+          </div>
           <span style={{
-            fontSize: '12px',
+            fontSize: '11px',
             fontWeight: '800',
             color: '#059669',
             background: '#ecfdf5',
             border: '1px solid #a7f3d0',
-            padding: '2px 8px',
+            padding: '3px 8px',
             borderRadius: '6px'
           }}>
-            Earn 0.8%
+            0.8% Lifetime
           </span>
         </div>
 
-        <div style={{
-          background: '#ffffff',
-          borderRadius: '12px',
-          padding: '14px 18px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          boxShadow: '0 1px 4px rgba(0,0,0,0.03)',
-          border: '1px solid #f0f1f5'
-        }}>
-          <span style={{
-            fontSize: '17px',
-            fontWeight: '800',
-            color: '#111827',
-            fontFamily: 'monospace',
-            letterSpacing: '0.8px'
+        {/* 1. Invite Link Field */}
+        <div style={{ marginBottom: '14px' }}>
+          <label style={{ fontSize: '12px', fontWeight: '700', color: '#475569', display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '6px' }}>
+            <Link2 size={13} color="#2563eb" />
+            Invite Link
+          </label>
+          <div style={{
+            background: '#f8fafc',
+            border: '1px solid #cbd5e1',
+            borderRadius: '10px',
+            padding: '6px 8px 6px 12px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '8px'
           }}>
-            {referralCode}
-          </span>
+            <span style={{
+              fontSize: '12px',
+              fontWeight: '600',
+              color: '#0f172a',
+              fontFamily: 'monospace',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              flex: 1
+            }}>
+              {inviteUrl}
+            </span>
+            <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
+              <button
+                type="button"
+                onClick={copyInviteLink}
+                style={{
+                  background: copiedLink ? '#ecfdf5' : '#0f172a',
+                  color: copiedLink ? '#059669' : '#ffffff',
+                  border: copiedLink ? '1px solid #a7f3d0' : 'none',
+                  padding: '7px 12px',
+                  borderRadius: '7px',
+                  fontSize: '12px',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                {copiedLink ? <Check size={13} /> : <Copy size={13} />}
+                {copiedLink ? 'Copied' : 'Copy'}
+              </button>
+              <button
+                type="button"
+                onClick={handleShare}
+                style={{
+                  background: '#f1f5f9',
+                  color: '#0f172a',
+                  border: '1px solid #cbd5e1',
+                  padding: '7px 10px',
+                  borderRadius: '7px',
+                  fontSize: '12px',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}
+                title="Share Link"
+              >
+                <Share2 size={13} />
+              </button>
+            </div>
+          </div>
+        </div>
 
-          <button
-            onClick={copyInviteCode}
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              color: copied ? '#00b894' : '#333333',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '6px',
-              borderRadius: '6px',
-              transition: 'color 0.15s ease'
-            }}
-            title="Copy Invite Code"
-          >
-            {copied ? <Check size={20} color="#00b894" /> : <Copy size={20} />}
-          </button>
+        {/* 2. Invite Code Field */}
+        <div>
+          <label style={{ fontSize: '12px', fontWeight: '700', color: '#475569', display: 'block', marginBottom: '6px' }}>
+            Invite Code
+          </label>
+          <div style={{
+            background: '#f8fafc',
+            border: '1px solid #cbd5e1',
+            borderRadius: '10px',
+            padding: '6px 8px 6px 12px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '8px'
+          }}>
+            <span style={{
+              fontSize: '15px',
+              fontWeight: '900',
+              color: '#2563eb',
+              fontFamily: 'monospace',
+              letterSpacing: '1px'
+            }}>
+              {referralCode}
+            </span>
+            <button
+              type="button"
+              onClick={copyInviteCode}
+              style={{
+                background: copiedCode ? '#ecfdf5' : '#ffffff',
+                color: copiedCode ? '#059669' : '#0f172a',
+                border: '1px solid ' + (copiedCode ? '#a7f3d0' : '#cbd5e1'),
+                padding: '7px 12px',
+                borderRadius: '7px',
+                fontSize: '12px',
+                fontWeight: '700',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              {copiedCode ? <Check size={13} /> : <Copy size={13} />}
+              {copiedCode ? 'Copied' : 'Copy Code'}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -168,36 +299,58 @@ export default function TeamScreen({ showToast, currentUser, stats }) {
               width: '54px',
               height: '54px',
               borderRadius: '50%',
-              background: '#f1f5f9',
+              background: '#eff6ff',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               margin: '0 auto 12px auto'
             }}>
-              <Users size={26} color="#64748b" />
+              <Users size={26} color="#2563eb" />
             </div>
             <h4 style={{ fontSize: '15px', fontWeight: '800', color: '#0f172a', margin: '0 0 6px 0' }}>
               No team members yet
             </h4>
             <p style={{ fontSize: '13px', color: '#64748b', margin: '0 0 16px 0', lineHeight: '1.4' }}>
-              Share your invite code <strong>{referralCode}</strong> with friends. When they register and recharge, they will appear here and you will earn 0.8% lifetime commissions!
+              Share your invite link with friends. When they register through your link and make recharges, they will appear here and you will earn 0.8% instant lifetime commissions!
             </p>
-            <button
-              className="btn-black"
-              onClick={copyInviteCode}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '9px 18px',
-                fontSize: '13px',
-                borderRadius: '8px',
-                fontWeight: '700'
-              }}
-            >
-              {copied ? <Check size={14} color="#00b894" /> : <Copy size={14} />}
-              {copied ? 'Code Copied' : 'Copy Invite Code'}
-            </button>
+            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
+              <button
+                className="btn-black"
+                onClick={copyInviteLink}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '9px 18px',
+                  fontSize: '13px',
+                  borderRadius: '8px',
+                  fontWeight: '700'
+                }}
+              >
+                {copiedLink ? <Check size={14} color="#059669" /> : <Link2 size={14} />}
+                {copiedLink ? 'Link Copied!' : 'Copy Invite Link'}
+              </button>
+              <button
+                type="button"
+                onClick={handleShare}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '9px 16px',
+                  fontSize: '13px',
+                  borderRadius: '8px',
+                  fontWeight: '700',
+                  background: '#f1f5f9',
+                  color: '#0f172a',
+                  border: '1px solid #cbd5e1',
+                  cursor: 'pointer'
+                }}
+              >
+                <Share2 size={14} />
+                Share
+              </button>
+            </div>
           </div>
         ) : (
           /* Real Members List when user has actually referred members */

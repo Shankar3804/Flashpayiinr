@@ -16,8 +16,7 @@ import {
   Activity,
   FileCheck
 } from 'lucide-react';
-
-const API_BASE = 'http://localhost:5000/api';
+import { API_BASE } from '../config';
 
 export default function AdminPanel({ adminUser, onLogout, showToast }) {
   const [activeTab, setActiveTab] = useState('transactions'); // 'transactions' or 'users'

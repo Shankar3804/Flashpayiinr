@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowRight, UserPlus, LogIn, Sparkles, Check } from 'lucide-react';
+import { API_BASE } from '../config';
 
 export default function LoginScreen({ onLoginSuccess, showToast, initialRefCode = '' }) {
   const [mode, setMode] = useState(initialRefCode ? 'register' : 'login');
@@ -24,7 +25,7 @@ export default function LoginScreen({ onLoginSuccess, showToast, initialRefCode 
     setErrorMsg(null);
 
     try {
-      const res = await fetch('http://localhost:5000/api/auth/login', {
+      const res = await fetch(`${API_BASE}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId: userIdInput.trim(), password: passwordInput })
@@ -71,7 +72,7 @@ export default function LoginScreen({ onLoginSuccess, showToast, initialRefCode 
     setErrorMsg(null);
 
     try {
-      const res = await fetch('http://localhost:5000/api/auth/register', {
+      const res = await fetch(`${API_BASE}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

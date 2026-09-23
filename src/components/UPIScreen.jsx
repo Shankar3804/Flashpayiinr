@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { CheckCircle2, Clock, XCircle, RefreshCw, ShieldCheck, Lock, Eye, EyeOff, X } from 'lucide-react';
+import { API_BASE } from '../config';
 
 export default function UPIScreen({ stats = {}, currentUser, showToast, updateStats, openModal }) {
   const [payoutMethod, setPayoutMethod] = useState('UPI'); // 'UPI' | 'Bank'
@@ -34,7 +35,7 @@ export default function UPIScreen({ stats = {}, currentUser, showToast, updateSt
   const fetchWithdrawals = async () => {
     try {
       setLoadingTxs(true);
-      const res = await fetch(`http://localhost:5000/api/user/transactions?userId=${userId}`);
+      const res = await fetch(`${API_BASE}/user/transactions?userId=${userId}`);
       if (res.ok) {
         const data = await res.json();
         const userWithdrawals = data.filter(tx => tx.type === 'withdrawal');
@@ -134,7 +135,7 @@ export default function UPIScreen({ stats = {}, currentUser, showToast, updateSt
         } : undefined
       };
 
-      const res = await fetch('http://localhost:5000/api/withdraw', {
+      const res = await fetch(`${API_BASE}/withdraw`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -194,7 +195,7 @@ export default function UPIScreen({ stats = {}, currentUser, showToast, updateSt
 
     setSubmitting(true);
     try {
-      const setRes = await fetch('http://localhost:5000/api/user/set-mpin', {
+      const setRes = await fetch(`${API_BASE}/user/set-mpin`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId, mpin: pin })

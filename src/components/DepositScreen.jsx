@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ChevronDown, PlayCircle, Coins, Copy, Check, X } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
+import { API_BASE } from '../config';
 
 export default function DepositScreen({ openModal, onBuyQuota, showToast, currentUser }) {
   const [currency, setCurrency] = useState('INR');
@@ -138,7 +139,7 @@ export default function DepositScreen({ openModal, onBuyQuota, showToast, curren
     setSubmitting(true);
 
     try {
-      const res = await fetch('http://localhost:5000/api/topup', {
+      const res = await fetch(`${API_BASE}/topup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -186,7 +187,7 @@ export default function DepositScreen({ openModal, onBuyQuota, showToast, curren
     setUsdtSubmitting(true);
 
     try {
-      const res = await fetch('http://localhost:5000/api/topup', {
+      const res = await fetch(`${API_BASE}/topup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { User, Users, Copy, Check, Share2 } from 'lucide-react';
+import { API_BASE } from '../config';
 
 export default function TeamScreen({ showToast, currentUser, stats }) {
   const [copied, setCopied] = useState(false);
@@ -17,7 +18,7 @@ export default function TeamScreen({ showToast, currentUser, stats }) {
 
   const fetchTeamData = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/api/team?userId=${userId}`);
+      const res = await fetch(`${API_BASE}/team?userId=${userId}`);
       if (res.ok) {
         const data = await res.json();
         setTeamData({

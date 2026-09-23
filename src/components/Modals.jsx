@@ -23,6 +23,7 @@ import {
   EyeOff
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { API_BASE } from '../config';
 
 export default function Modals({ modalType, modalData, closeModal, showToast, addUpiAccount, updateStats, currentUser, stats, openModal }) {
   if (!modalType) return null;
@@ -91,7 +92,7 @@ export default function Modals({ modalType, modalData, closeModal, showToast, ad
     try {
       setLoadingTokenTxs(true);
       const uid = currentUser?.userId || '1000656';
-      const res = await fetch(`http://localhost:5000/api/user/transactions?userId=${uid}`);
+      const res = await fetch(`${API_BASE}/user/transactions?userId=${uid}`);
       if (res.ok) {
         const data = await res.json();
         setTokenTxs(data);
@@ -174,7 +175,7 @@ export default function Modals({ modalType, modalData, closeModal, showToast, ad
 
     setSubmittingWithdraw(true);
     try {
-      const res = await fetch('http://localhost:5000/api/withdraw', {
+      const res = await fetch(`${API_BASE}/withdraw`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -227,7 +228,7 @@ export default function Modals({ modalType, modalData, closeModal, showToast, ad
     setSubmittingMpin(true);
     try {
       const uid = currentUser?.userId || stats?.userId || '1000656';
-      const setRes = await fetch('http://localhost:5000/api/user/set-mpin', {
+      const setRes = await fetch(`${API_BASE}/user/set-mpin`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId: uid, mpin: pin })
@@ -274,7 +275,7 @@ export default function Modals({ modalType, modalData, closeModal, showToast, ad
     setSubmittingMpin(true);
     try {
       const uid = currentUser?.userId || stats?.userId || '1000656';
-      const res = await fetch('http://localhost:5000/api/user/set-mpin', {
+      const res = await fetch(`${API_BASE}/user/set-mpin`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId: uid, mpin: pin })
@@ -322,7 +323,7 @@ export default function Modals({ modalType, modalData, closeModal, showToast, ad
       }
       setSubmittingTopup(true);
       try {
-        await fetch('http://localhost:5000/api/topup', {
+        await fetch(`${API_BASE}/topup`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -419,7 +420,7 @@ export default function Modals({ modalType, modalData, closeModal, showToast, ad
       // 2. Persist in MongoDB database
       try {
         const uid = currentUser?.userId || stats?.userId || '1000656';
-        await fetch('http://localhost:5000/api/wheel/win', {
+        await fetch(`${API_BASE}/wheel/win`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userId: uid, amount: winItem.value })

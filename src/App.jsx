@@ -8,8 +8,7 @@ import MeScreen from './components/MeScreen';
 import Modals from './components/Modals';
 import LoginScreen from './components/LoginScreen';
 import AdminPanel from './components/AdminPanel';
-
-const API_BASE = 'http://localhost:5000/api';
+import { API_BASE } from './config';
 
 export default function App() {
   // Auth state

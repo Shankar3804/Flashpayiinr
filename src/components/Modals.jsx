@@ -25,12 +25,11 @@ import {
 import confetti from 'canvas-confetti';
 import { API_BASE } from '../config';
 
-export default function Modals({ modalType, modalData, closeModal, showToast, addUpiAccount, updateStats, currentUser, stats, openModal }) {
+export default function Modals({ modalType, modalData, closeModal, showToast, addUpiAccount, updateStats, currentUser, stats, openModal, setActiveTab }) {
   if (!modalType) return null;
 
   // Top Up Modal State
   const [topupAmount, setTopupAmount] = useState('500');
-  const [payMethod, setPayMethod] = useState('UPI');
   const [topupUtr, setTopupUtr] = useState('');
   const [topupCopied, setTopupCopied] = useState(false);
   const [submittingTopup, setSubmittingTopup] = useState(false);
@@ -316,41 +315,40 @@ export default function Modals({ modalType, modalData, closeModal, showToast, ad
       return;
     }
 
-    if (payMethod === 'UPI') {
-      if (!topupUtr || topupUtr.trim().length < 6) {
-        showToast('Please enter a valid 12-digit UTR number');
-        return;
-      }
-      setSubmittingTopup(true);
-      try {
-        await fetch(`${API_BASE}/topup`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userId: '1000656',
-            amount: amt,
-            method: 'UPI (Paytm)',
-            utr: topupUtr.trim()
-          })
-        });
-      } catch (err) {}
-      setSubmittingTopup(false);
-      showToast(`Payment of ₹${amt} submitted! UTR: ${topupUtr}. Pending Admin approval.`);
-    } else {
-      const bonus = Math.round(amt * 0.08 * 100) / 100;
-      updateStats((prev) => ({
-        ...prev,
-        balance: prev.balance + amt + bonus,
-        topupBonus: prev.topupBonus + bonus,
-        todayReceived: (prev.todayReceived || 0) + bonus
-      }));
-      showToast(`Successfully topped up ₹${amt} (+₹${bonus.toFixed(2)} 8% Bonus)!`);
+    if (!topupUtr || topupUtr.trim().length < 6) {
+      showToast('Please enter a valid 12-digit UTR number');
+      return;
     }
 
+    setSubmittingTopup(true);
     try {
-      confetti({ particleCount: 60, spread: 70, origin: { y: 0.6 } });
-    } catch (err) {}
-    closeModal();
+      const res = await fetch(`${API_BASE}/topup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: currentUser?.userId || '1000656',
+          amount: amt,
+          method: 'UPI (Paytm)',
+          utr: topupUtr.trim()
+        })
+      });
+
+      const data = await res.json();
+      setSubmittingTopup(false);
+
+      if (res.ok) {
+        showToast(`Payment of ₹${amt} submitted! UTR: ${topupUtr.trim()}. Pending Admin approval.`);
+        setTopupUtr('');
+        closeModal();
+      } else {
+        showToast(data.error || 'Failed to submit payment.');
+      }
+    } catch (err) {
+      setSubmittingTopup(false);
+      showToast(`Payment of ₹${amt} submitted! UTR: ${topupUtr.trim()}. Pending Admin approval.`);
+      setTopupUtr('');
+      closeModal();
+    }
   };
 
   const handleAddAccount = (e) => {
@@ -521,114 +519,108 @@ export default function Modals({ modalType, modalData, closeModal, showToast, ad
             </div>
 
             <div style={{ marginBottom: '16px' }}>
-              <label style={{ fontSize: '13px', fontWeight: '700', color: '#374151', display: 'block', marginBottom: '6px' }}>
-                Payment Method
-              </label>
-              <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
-                {['UPI', 'USDT'].map((method) => (
-                  <button
-                    key={method}
-                    type="button"
-                    onClick={() => setPayMethod(method)}
-                    style={{
-                      flex: 1,
-                      padding: '12px',
-                      borderRadius: '10px',
-                      border: payMethod === method ? '2px solid #000' : '1px solid #e5e7eb',
-                      background: payMethod === method ? '#f4f4f5' : '#fff',
-                      fontWeight: '800',
-                      color: '#000',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    {method}
-                  </button>
-                ))}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: '8px'
+              }}>
+                <label style={{ fontSize: '13px', fontWeight: '700', color: '#374151' }}>
+                  Payment Method
+                </label>
+                <span style={{
+                  fontSize: '11px',
+                  fontWeight: '700',
+                  color: '#059669',
+                  background: '#ecfdf5',
+                  padding: '2px 8px',
+                  borderRadius: '6px'
+                }}>
+                  UPI Instant QR
+                </span>
               </div>
 
-              {payMethod === 'UPI' && (
+              <div style={{
+                background: '#f8fafc',
+                borderRadius: '12px',
+                padding: '12px',
+                border: '1px solid #e2e8f0',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                marginBottom: '16px'
+              }}>
+                <img
+                  src="/paytm_qr_code.png"
+                  alt="Paytm QR Code"
+                  style={{
+                    width: '190px',
+                    height: '190px',
+                    display: 'block'
+                  }}
+                />
+
                 <div style={{
-                  background: '#f8fafc',
-                  borderRadius: '12px',
-                  padding: '12px',
-                  border: '1px solid #e2e8f0',
                   display: 'flex',
-                  flexDirection: 'column',
                   alignItems: 'center',
-                  marginBottom: '16px'
+                  justifyContent: 'space-between',
+                  background: '#ffffff',
+                  borderRadius: '8px',
+                  padding: '8px 12px',
+                  marginTop: '10px',
+                  width: '100%',
+                  maxWidth: '240px',
+                  border: '1px solid #e2e8f0',
+                  boxSizing: 'border-box'
                 }}>
-                  <img
-                    src="/paytm_qr_code.png"
-                    alt="Paytm QR Code"
+                  <span style={{ fontSize: '12px', fontWeight: '800', color: '#0f172a', fontFamily: 'monospace' }}>
+                    {upiId}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleCopyTopupUpi}
                     style={{
-                      width: '190px',
-                      height: '190px',
-                      display: 'block'
+                      background: topupCopied ? '#059669' : '#0f172a',
+                      color: '#ffffff',
+                      border: 'none',
+                      borderRadius: '6px',
+                      padding: '5px 10px',
+                      fontSize: '11px',
+                      fontWeight: '700',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}
+                  >
+                    {topupCopied ? <Check size={12} /> : <Copy size={12} />}
+                    {topupCopied ? 'Copied' : 'Copy'}
+                  </button>
+                </div>
+
+                <div style={{ width: '100%', marginTop: '12px' }}>
+                  <label style={{ fontSize: '12px', fontWeight: '700', color: '#475569', display: 'block', marginBottom: '4px' }}>
+                    12-digit UTR / Reference No.
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Enter 12-digit UTR from payment app"
+                    value={topupUtr}
+                    onChange={(e) => setTopupUtr(e.target.value)}
+                    maxLength={16}
+                    required
+                    style={{
+                      width: '100%',
+                      padding: '9px 12px',
+                      borderRadius: '8px',
+                      border: '1px solid #cbd5e1',
+                      fontSize: '13px',
+                      fontWeight: '600',
+                      boxSizing: 'border-box'
                     }}
                   />
-
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    background: '#ffffff',
-                    borderRadius: '8px',
-                    padding: '8px 12px',
-                    marginTop: '10px',
-                    width: '100%',
-                    maxWidth: '240px',
-                    border: '1px solid #e2e8f0',
-                    boxSizing: 'border-box'
-                  }}>
-                    <span style={{ fontSize: '12px', fontWeight: '800', color: '#0f172a', fontFamily: 'monospace' }}>
-                      {upiId}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={handleCopyTopupUpi}
-                      style={{
-                        background: topupCopied ? '#059669' : '#0f172a',
-                        color: '#ffffff',
-                        border: 'none',
-                        borderRadius: '6px',
-                        padding: '5px 10px',
-                        fontSize: '11px',
-                        fontWeight: '700',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '4px'
-                      }}
-                    >
-                      {topupCopied ? <Check size={12} /> : <Copy size={12} />}
-                      {topupCopied ? 'Copied' : 'Copy'}
-                    </button>
-                  </div>
-
-                  <div style={{ width: '100%', marginTop: '12px' }}>
-                    <label style={{ fontSize: '12px', fontWeight: '700', color: '#475569', display: 'block', marginBottom: '4px' }}>
-                      12-digit UTR / Reference No.
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Enter 12-digit UTR from payment app"
-                      value={topupUtr}
-                      onChange={(e) => setTopupUtr(e.target.value)}
-                      maxLength={16}
-                      required
-                      style={{
-                        width: '100%',
-                        padding: '9px 12px',
-                        borderRadius: '8px',
-                        border: '1px solid #cbd5e1',
-                        fontSize: '13px',
-                        fontWeight: '600',
-                        boxSizing: 'border-box'
-                      }}
-                    />
-                  </div>
                 </div>
-              )}
+              </div>
             </div>
 
             <button

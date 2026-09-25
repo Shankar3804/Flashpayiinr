@@ -39,20 +39,6 @@ export default function HomeScreen({ openModal, stats, setActiveTab }) {
       action: () => openModal && openModal('spin')
     },
     {
-      id: 'usdt_crypto',
-      tag: '🚀 CRYPTO ADVANTAGE',
-      tagColor: '#38bdf8',
-      tagBg: 'rgba(56, 189, 248, 0.2)',
-      title: 'USDT TRC20 DEPOSITS',
-      subtitle: 'Exchange USDT at top rate 1 USDT ≈ ₹115 with 8% return!',
-      badges: ['✓ 1 USDT ≈ ₹115', '⚡ TRC20 Instant', '🛡️ Zero Slippage'],
-      btnText: 'DEPOSIT USDT',
-      btnBg: '#0284c7',
-      bgGradient: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f766e 100%)',
-      imgSrc: '/banner_crypto_usdt.jpg',
-      action: () => setActiveTab && setActiveTab('deposit')
-    },
-    {
       id: 'team_referral',
       tag: '👑 LIFETIME PASSIVE INCOME',
       tagColor: '#fde047',
@@ -347,7 +333,7 @@ export default function HomeScreen({ openModal, stats, setActiveTab }) {
         </div>
       </div>
 
-      {/* Exchange Ratios Box */}
+      {/* Exchange Ratios & USDT Price Box */}
       <div style={{
         background: '#f8f9fa',
         borderRadius: '16px',
@@ -356,18 +342,31 @@ export default function HomeScreen({ openModal, stats, setActiveTab }) {
         justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: '14px',
+        marginTop: '14px',
         border: '1px solid #edf0f5'
       }}>
         <div>
-          <span style={{ fontSize: '13px', fontWeight: '700', color: '#111' }}>USDT Ratio</span>
-          <div style={{ fontSize: '17px', fontWeight: '800', color: '#000', margin: '4px 0 2px 0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{
+              background: '#26a17b',
+              color: '#ffffff',
+              fontSize: '10px',
+              fontWeight: '800',
+              padding: '1px 6px',
+              borderRadius: '4px'
+            }}>
+              USDT
+            </span>
+            <span style={{ fontSize: '13px', fontWeight: '700', color: '#111' }}>Price</span>
+          </div>
+          <div style={{ fontSize: '18px', fontWeight: '800', color: '#000', margin: '4px 0 2px 0' }}>
             1 USDT ≈ 115 INR
           </div>
-          <span style={{ fontSize: '11px', color: '#9ca3af', fontWeight: '500' }}>Bonus ratio: 2%</span>
+          <span style={{ fontSize: '11px', color: '#64748b', fontWeight: '500' }}>Live rate: ₹115.00</span>
         </div>
         <div style={{ textAlign: 'right' }}>
           <span style={{ fontSize: '13px', fontWeight: '700', color: '#111' }}>INR Bonus Ratio</span>
-          <div style={{ fontSize: '24px', fontWeight: '800', color: '#000', marginTop: '4px' }}>
+          <div style={{ fontSize: '24px', fontWeight: '800', color: '#000', marginTop: '2px' }}>
             8%
           </div>
         </div>
@@ -432,7 +431,7 @@ export default function HomeScreen({ openModal, stats, setActiveTab }) {
 
         <div className="card" style={{ padding: '16px 18px', margin: 0 }}>
           <div style={{ color: '#9ca3af', fontSize: '13px', fontWeight: '600', marginBottom: '6px' }}>
-            <span>Top up Bonus</span>
+            <span>Deposit Bonus</span>
           </div>
           <div style={{ fontSize: '22px', fontWeight: '800', color: '#000' }}>
             {stats.topupBonus.toFixed(2)}

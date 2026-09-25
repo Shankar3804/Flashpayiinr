@@ -338,6 +338,7 @@ export default function App() {
             currentUser={currentUser}
             stats={stats}
             openModal={openModal}
+            setActiveTab={setActiveTab}
           />
         )}
       </div>

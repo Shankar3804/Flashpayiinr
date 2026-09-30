@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, PlayCircle, Coins, Copy, Check, X } from 'lucide-react';
+import { ChevronDown, PlayCircle, Coins, Copy, Check, X, ShieldAlert, ShieldCheck, ArrowRight, AlertTriangle } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { API_BASE } from '../config';
 
@@ -16,7 +16,10 @@ export default function DepositScreen({ openModal, onBuyQuota, showToast, curren
   const [submitting, setSubmitting] = useState(false);
   const [submittedTx, setSubmittedTx] = useState(null);
 
-  const upiId = 'paytm.s2zq355@pty';
+  // Security & Anti-Scam Notice before Payment
+  const [pendingOrder, setPendingOrder] = useState(null);
+
+  const upiId = 'q005726489@ybl';
   const usdtAddress = 'TX5GQ3BXFvFfzfpyZP5AUBCdTqkcc57VmP';
   const [usdtCopied, setUsdtCopied] = useState(false);
   const [usdtAmount, setUsdtAmount] = useState('');
@@ -118,9 +121,20 @@ export default function DepositScreen({ openModal, onBuyQuota, showToast, curren
   };
 
   const handleOrderClick = (item) => {
-    setSelectedOrder(item);
+    // Show official company UPI and anti-scammer security popup every time Buy is clicked
+    setPendingOrder(item);
+  };
+
+  const handleAgreeAndPay = () => {
+    if (!pendingOrder) return;
+    setSelectedOrder(pendingOrder);
+    setPendingOrder(null);
     setUtrNumber('');
     setSubmittedTx(null);
+  };
+
+  const handleCancelSecurityNotice = () => {
+    setPendingOrder(null);
   };
 
   const handleSubmitPayment = async (e) => {
@@ -145,7 +159,7 @@ export default function DepositScreen({ openModal, onBuyQuota, showToast, curren
         body: JSON.stringify({
           userId: currentUser?.userId || '1000656',
           amount: Number(orderAmt),
-          method: 'UPI (Paytm)',
+          method: 'UPI (PhonePe)',
           utr: utrNumber.trim()
         })
       });
@@ -674,6 +688,292 @@ export default function DepositScreen({ openModal, onBuyQuota, showToast, curren
         </>
       )}
 
+      {/* Security & Anti-Scam Official Payment Notice Modal (Appears EVERY TIME Buy is clicked) */}
+      {pendingOrder && (
+        <div
+          className="modal-overlay"
+          onClick={handleCancelSecurityNotice}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(15, 23, 42, 0.7)',
+            backdropFilter: 'blur(6px)',
+            WebkitBackdropFilter: 'blur(6px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1100,
+            padding: '16px'
+          }}
+        >
+          <div
+            className="modal-sheet"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: '#ffffff',
+              width: '100%',
+              maxWidth: '390px',
+              borderRadius: '24px',
+              padding: '22px 20px',
+              boxSizing: 'border-box',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+              border: '1px solid #e2e8f0',
+              maxHeight: '90vh',
+              overflowY: 'auto'
+            }}
+          >
+            {/* Header close button */}
+            <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', marginBottom: '-6px' }}>
+              <button
+                type="button"
+                onClick={handleCancelSecurityNotice}
+                style={{
+                  background: '#f1f5f9',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '28px',
+                  height: '28px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  color: '#64748b'
+                }}
+              >
+                <X size={15} />
+              </button>
+            </div>
+
+            {/* Glowing Security Shield Icon */}
+            <div style={{
+              width: '56px',
+              height: '56px',
+              borderRadius: '18px',
+              background: 'linear-gradient(135deg, #fef3c7 0%, #fee2e2 100%)',
+              border: '2px solid #fed7aa',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: '12px',
+              boxShadow: '0 8px 20px -4px rgba(245, 158, 11, 0.3)'
+            }}>
+              <ShieldAlert size={30} color="#dc2626" />
+            </div>
+
+            {/* Modal Heading */}
+            <h3 style={{
+              fontSize: '18px',
+              fontWeight: '800',
+              color: '#0f172a',
+              textAlign: 'center',
+              margin: '0 0 4px 0',
+              letterSpacing: '-0.3px'
+            }}>
+              Official Payment Notice
+            </h3>
+            <p style={{
+              fontSize: '12px',
+              color: '#64748b',
+              textAlign: 'center',
+              margin: '0 0 14px 0',
+              fontWeight: '600'
+            }}>
+              Anti-Fraud Security & Verification
+            </p>
+
+            {/* Order Highlight Box */}
+            <div style={{
+              width: '100%',
+              background: '#f8fafc',
+              border: '1px solid #e2e8f0',
+              borderRadius: '12px',
+              padding: '10px 14px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '14px',
+              boxSizing: 'border-box'
+            }}>
+              <div>
+                <span style={{ fontSize: '11px', color: '#64748b', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Selected Package</span>
+                <div style={{ fontSize: '18px', fontWeight: '900', color: '#0f172a' }}>
+                  ₹{Number(pendingOrder.amount).toLocaleString('en-IN')} {currency}
+                </div>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <span style={{ fontSize: '11px', color: '#059669', fontWeight: '800' }}>Income +{pendingOrder.income} ({pendingOrder.rate})</span>
+                <div style={{ fontSize: '12px', fontWeight: '700', color: '#2563eb' }}>
+                  Quota +{pendingOrder.quota}
+                </div>
+              </div>
+            </div>
+
+            {/* Security Advisory Points */}
+            <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '16px' }}>
+              
+              {/* Point 1: Company Official UPI & Scanner */}
+              <div style={{
+                background: '#ecfdf5',
+                border: '1px solid #a7f3d0',
+                borderRadius: '12px',
+                padding: '10px 12px',
+                display: 'flex',
+                gap: '10px',
+                alignItems: 'flex-start',
+                boxSizing: 'border-box'
+              }}>
+                <div style={{
+                  width: '24px',
+                  height: '24px',
+                  borderRadius: '50%',
+                  background: '#059669',
+                  color: '#ffffff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                  marginTop: '1px'
+                }}>
+                  <Check size={14} strokeWidth={3} />
+                </div>
+                <div style={{ fontSize: '12px', color: '#065f46', lineHeight: '1.4' }}>
+                  <span style={{ fontWeight: '800', color: '#047857', display: 'block', marginBottom: '2px' }}>
+                    Company Official UPI ID & Scanner
+                  </span>
+                  This is the company's verified and official UPI ID & QR scanner. All transactions are securely tracked and credited automatically.
+                </div>
+              </div>
+
+              {/* Point 2: Changes every 15 days */}
+              <div style={{
+                background: '#eff6ff',
+                border: '1px solid #bfdbfe',
+                borderRadius: '12px',
+                padding: '10px 12px',
+                display: 'flex',
+                gap: '10px',
+                alignItems: 'flex-start',
+                boxSizing: 'border-box'
+              }}>
+                <div style={{
+                  width: '24px',
+                  height: '24px',
+                  borderRadius: '6px',
+                  background: '#2563eb',
+                  color: '#ffffff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '10px',
+                  fontWeight: '900',
+                  flexShrink: 0,
+                  marginTop: '1px'
+                }}>
+                  15D
+                </div>
+                <div style={{ fontSize: '12px', color: '#1e40af', lineHeight: '1.4' }}>
+                  <span style={{ fontWeight: '800', color: '#1d4ed8', display: 'block', marginBottom: '2px' }}>
+                    Updated Every 15 Days
+                  </span>
+                  Please note that our official UPI ID and QR scanner change every 15 days for banking safety. Always make payments using the live scanner shown on the screen—never reuse old saved accounts.
+                </div>
+              </div>
+
+              {/* Point 3: Stay away from scammers */}
+              <div style={{
+                background: '#fff1f2',
+                border: '1px solid #fecdd3',
+                borderRadius: '12px',
+                padding: '10px 12px',
+                display: 'flex',
+                gap: '10px',
+                alignItems: 'flex-start',
+                boxSizing: 'border-box'
+              }}>
+                <div style={{
+                  width: '24px',
+                  height: '24px',
+                  borderRadius: '50%',
+                  background: '#e11d48',
+                  color: '#ffffff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                  marginTop: '1px'
+                }}>
+                  <AlertTriangle size={13} strokeWidth={2.5} />
+                </div>
+                <div style={{ fontSize: '12px', color: '#9f1239', lineHeight: '1.4' }}>
+                  <span style={{ fontWeight: '800', color: '#be123c', display: 'block', marginBottom: '2px' }}>
+                    Stay Away from Scammers!
+                  </span>
+                  Never transfer money to personal UPI IDs, Telegram/WhatsApp agents, or unverified links claiming to represent FlashPay. FlashPay will never ask you to pay into any personal account.
+                </div>
+              </div>
+
+            </div>
+
+            {/* Acknowledgment line */}
+            <div style={{
+              fontSize: '11px',
+              color: '#64748b',
+              textAlign: 'center',
+              marginBottom: '14px',
+              lineHeight: '1.4',
+              padding: '0 4px'
+            }}>
+              By clicking below, you confirm that you will pay only via the official company QR code & UPI ID displayed next.
+            </div>
+
+            {/* Action Buttons: Agree and Pay & Cancel */}
+            <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <button
+                type="button"
+                onClick={handleAgreeAndPay}
+                className="btn-black"
+                style={{
+                  width: '100%',
+                  padding: '13px',
+                  borderRadius: '12px',
+                  fontSize: '14px',
+                  fontWeight: '800',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  boxShadow: '0 4px 14px rgba(15, 23, 42, 0.25)',
+                  cursor: 'pointer'
+                }}
+              >
+                <span>Agree and Pay (₹{Number(pendingOrder.amount).toLocaleString('en-IN')})</span>
+                <ArrowRight size={16} />
+              </button>
+
+              <button
+                type="button"
+                onClick={handleCancelSecurityNotice}
+                style={{
+                  width: '100%',
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#64748b',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  padding: '8px',
+                  cursor: 'pointer'
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Order Payment Modal: "just keep qr nothing else and upi id and let copy" */}
       {selectedOrder && (
         <div
@@ -706,10 +1006,10 @@ export default function DepositScreen({ openModal, onBuyQuota, showToast, curren
             }}
           >
             {/* Header with Close */}
-            <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+            <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
               <div>
                 <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#0f172a', margin: 0 }}>
-                  Order: {selectedOrder.amount} {currency}
+                  Order: ₹{selectedOrder.amount} {currency}
                 </h3>
               </div>
               <button
@@ -728,6 +1028,28 @@ export default function DepositScreen({ openModal, onBuyQuota, showToast, curren
               >
                 <X size={16} color="#475569" />
               </button>
+            </div>
+
+            {/* Official Company Security Reminder Badge */}
+            <div style={{
+              background: '#fef3c7',
+              border: '1px solid #fde68a',
+              borderRadius: '8px',
+              padding: '6px 10px',
+              width: '100%',
+              boxSizing: 'border-box',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
+              marginBottom: '12px',
+              fontSize: '11px',
+              fontWeight: '700',
+              color: '#92400e',
+              textAlign: 'center'
+            }}>
+              <ShieldCheck size={14} color="#b45309" />
+              <span>Official Company Scanner • Changes every 15 days</span>
             </div>
 
             {submittedTx ? (
@@ -767,25 +1089,27 @@ export default function DepositScreen({ openModal, onBuyQuota, showToast, curren
               </div>
             ) : (
               <form onSubmit={handleSubmitPayment} style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                {/* JUST QR: pure square QR code image without extra posters or headers */}
+                {/* PhonePe QR Code: FlashPay India Official */}
                 <div style={{
                   background: '#ffffff',
-                  padding: '8px',
+                  padding: '10px',
                   borderRadius: '12px',
                   border: '1px solid #e2e8f0',
                   boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
                   display: 'flex',
+                  flexDirection: 'column',
                   justifyContent: 'center',
                   alignItems: 'center',
                   marginBottom: '14px'
                 }}>
                   <img
-                    src="/paytm_qr_code.png"
-                    alt="UPI QR Code"
+                    src="/phonepe_qr_code.png"
+                    alt="PhonePe UPI QR Code"
                     style={{
                       width: '210px',
                       height: '210px',
-                      display: 'block'
+                      display: 'block',
+                      borderRadius: '8px'
                     }}
                   />
                 </div>

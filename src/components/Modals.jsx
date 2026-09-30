@@ -64,7 +64,7 @@ export default function Modals({ modalType, modalData, closeModal, showToast, ad
   const [wonPrize, setWonPrize] = useState(null);
 
   // Add UPI Modal State
-  const [newProvider, setNewProvider] = useState('paytm');
+  const [newProvider, setNewProvider] = useState('phonepe');
   const [newPhone, setNewPhone] = useState('');
   const [newVpa, setNewVpa] = useState('');
 
@@ -111,7 +111,7 @@ export default function Modals({ modalType, modalData, closeModal, showToast, ad
     }
   }, [modalType, currentUser]);
 
-  const upiId = 'paytm.s2zq355@pty';
+  const upiId = 'q005726489@ybl';
 
   const handleCopyTopupUpi = () => {
     if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -328,7 +328,7 @@ export default function Modals({ modalType, modalData, closeModal, showToast, ad
         body: JSON.stringify({
           userId: currentUser?.userId || '1000656',
           amount: amt,
-          method: 'UPI (Paytm)',
+          method: 'UPI (PhonePe)',
           utr: topupUtr.trim()
         })
       });
@@ -531,12 +531,12 @@ export default function Modals({ modalType, modalData, closeModal, showToast, ad
                 <span style={{
                   fontSize: '11px',
                   fontWeight: '700',
-                  color: '#059669',
-                  background: '#ecfdf5',
+                  color: '#6b21a8',
+                  background: '#f3e8ff',
                   padding: '2px 8px',
                   borderRadius: '6px'
                 }}>
-                  UPI Instant QR
+                  PhonePe Instant QR
                 </span>
               </div>
 
@@ -550,13 +550,37 @@ export default function Modals({ modalType, modalData, closeModal, showToast, ad
                 alignItems: 'center',
                 marginBottom: '16px'
               }}>
+                {/* Official Company Security Reminder Badge */}
+                <div style={{
+                  background: '#fef3c7',
+                  border: '1px solid #fde68a',
+                  borderRadius: '8px',
+                  padding: '6px 10px',
+                  width: '100%',
+                  maxWidth: '280px',
+                  boxSizing: 'border-box',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                  marginBottom: '10px',
+                  fontSize: '11px',
+                  fontWeight: '700',
+                  color: '#92400e',
+                  textAlign: 'center'
+                }}>
+                  <ShieldCheck size={14} color="#b45309" />
+                  <span>Official Company Scanner • Changes every 15 days</span>
+                </div>
+
                 <img
-                  src="/paytm_qr_code.png"
-                  alt="Paytm QR Code"
+                  src="/phonepe_qr_code.png"
+                  alt="PhonePe QR Code"
                   style={{
                     width: '190px',
                     height: '190px',
-                    display: 'block'
+                    display: 'block',
+                    borderRadius: '8px'
                   }}
                 />
 
@@ -684,7 +708,7 @@ export default function Modals({ modalType, modalData, closeModal, showToast, ad
               </label>
               <input
                 type="text"
-                placeholder="e.g. user@paytm"
+                placeholder="e.g. q005726489@ybl"
                 value={newVpa}
                 onChange={(e) => setNewVpa(e.target.value)}
                 style={{
@@ -1027,7 +1051,7 @@ export default function Modals({ modalType, modalData, closeModal, showToast, ad
                   </label>
                   <input
                     type="text"
-                    placeholder="e.g. yourname@paytm or 9876543210@upi"
+                    placeholder="e.g. q005726489@ybl or 9876543210@upi"
                     value={withdrawUpi}
                     onChange={(e) => setWithdrawUpi(e.target.value)}
                     required

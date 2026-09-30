@@ -3,9 +3,9 @@ import mongoose from 'mongoose';
 const upiAccountSchema = new mongoose.Schema({
   phone: { type: String, required: true },
   vpa: { type: String, required: true },
-  provider: { type: String, required: true, default: 'paytm' },
+  provider: { type: String, required: true, default: 'phonepe' },
   enabled: { type: Boolean, default: true },
-  logoBg: { type: String, default: '#e0f2fe' },
+  logoBg: { type: String, default: '#f3e8ff' },
   createdAt: { type: Date, default: Date.now }
 });
 

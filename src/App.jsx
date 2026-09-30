@@ -27,19 +27,11 @@ export default function App() {
   const [upiAccounts, setUpiAccounts] = useState([
     {
       id: 1,
-      phone: '7892136208',
-      vpa: 'karthik35@ptyes',
-      provider: 'paytm',
+      phone: 'FlashPay Official',
+      vpa: 'q005726489@ybl',
+      provider: 'phonepe',
       enabled: true,
-      logoBg: '#e0f2fe'
-    },
-    {
-      id: 2,
-      phone: '7907342027',
-      vpa: 'paytm.s2zq355@pty',
-      provider: 'paytm-business',
-      enabled: true,
-      logoBg: '#f0fdf4'
+      logoBg: '#f3e8ff'
     }
   ]);
 

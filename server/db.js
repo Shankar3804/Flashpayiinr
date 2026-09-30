@@ -80,21 +80,26 @@ async function seedDatabase() {
     if (upiCount === 0) {
       await UpiAccount.create([
         {
-          phone: '7892136208',
-          vpa: 'karthik35@ptyes',
-          provider: 'paytm',
+          phone: 'FlashPay Official',
+          vpa: 'q005726489@ybl',
+          provider: 'phonepe',
           enabled: true,
-          logoBg: '#e0f2fe'
-        },
-        {
-          phone: '7907342027',
-          vpa: 'paytm.s2zq355@pty',
-          provider: 'paytm-business',
-          enabled: true,
-          logoBg: '#f0fdf4'
+          logoBg: '#f3e8ff'
         }
       ]);
-      console.log('🌱 Seeded default UPI Accounts into local MongoDB.');
+      console.log('🌱 Seeded default PhonePe UPI Account into local MongoDB.');
+    } else {
+      await UpiAccount.deleteMany({ vpa: { $ne: 'q005726489@ybl' } });
+      const officialExists = await UpiAccount.findOne({ vpa: 'q005726489@ybl' });
+      if (!officialExists) {
+        await UpiAccount.create({
+          phone: 'FlashPay Official',
+          vpa: 'q005726489@ybl',
+          provider: 'phonepe',
+          enabled: true,
+          logoBg: '#f3e8ff'
+        });
+      }
     }
 
 
@@ -107,7 +112,7 @@ async function seedDatabase() {
           userPhone: '897****1210',
           type: 'topup',
           amount: 500,
-          description: 'Top up via UPI (Paytm)',
+          description: 'Top up via UPI (PhonePe)',
           status: 'pending',
           createdAt: new Date(Date.now() - 3600000)
         },

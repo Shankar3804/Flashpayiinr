@@ -578,7 +578,7 @@ app.post('/api/upi', async (req, res) => {
       vpa,
       provider,
       enabled: true,
-      logoBg: provider === 'paytm' ? '#e0f2fe' : '#f0fdf4'
+      logoBg: provider === 'phonepe' ? '#f3e8ff' : provider === 'paytm' ? '#e0f2fe' : '#f0fdf4'
     });
     res.status(201).json(newAcc);
   } catch (err) {

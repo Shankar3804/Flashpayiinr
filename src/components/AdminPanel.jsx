@@ -52,7 +52,7 @@ export default function AdminPanel({ adminUser, onLogout, showToast }) {
           userPhone: '897****1210',
           type: 'topup',
           amount: 500,
-          description: 'Top up ₹500 via UPI (Paytm)',
+          description: 'Top up ₹500 via UPI (PhonePe)',
           status: 'pending',
           createdAt: new Date()
         },
